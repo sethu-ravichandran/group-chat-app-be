@@ -25,6 +25,11 @@ const userSchema = new mongoose.Schema(
             required : [true,'Password is a mandatory field'],
             select : false,
             max : 25,
+        },
+        role: {
+            type: String,
+            required: true,
+            default: "user",
         }
     },
     {
