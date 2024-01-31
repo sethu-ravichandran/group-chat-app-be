@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 
-const userSchema = new mongoose.Schema(
+const adminSchema = new mongoose.Schema(
     {
         userName : {
             type : String,
@@ -20,20 +20,20 @@ const userSchema = new mongoose.Schema(
     }
 )
 
-userSchema.pre('save', (next) => {
-    const user = this;
+adminSchema.pre('save', (next) => {
+    const admin = this;
 
-    if (!user.isModified('password')) return next()
+    if (!admin.isModified('password')) return next()
     bcrypt.genSalt(10, (error, salt) => {
         if (error) return next(error)
 
-        bcrypt.hash(user.password, salt, (error, hash) => {
+        bcrypt.hash(admin.password, salt, (error, hash) => {
             if (error) return next(error)
 
-            user.password = hash
+            admin.password = hash
             next()
         })
     })
 })
 
-module.exports = mongoose.model.admin || mongoose.model("admin", userSchema)
+module.exports = mongoose.model.admin || mongoose.model("admin", adminSchema)
