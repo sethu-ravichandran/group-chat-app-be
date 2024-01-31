@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+const { ACCESS_TOKEN } = require('../configuration/config')
 
 const userSchema = new mongoose.Schema(
     {
@@ -37,8 +39,8 @@ const userSchema = new mongoose.Schema(
     }
 )
 
-userSchema.pre('save', (next) => {
-    const user = this;
+userSchema.pre('save', function (next) {
+    const user = this
 
     if (!user.isModified('password')) return next()
     bcrypt.genSalt(10, (error, salt) => {
@@ -53,4 +55,9 @@ userSchema.pre('save', (next) => {
     })
 })
 
-module.exports = mongoose.model.users || mongoose.model("users", userSchema)
+userSchema.methods.generateAccessJWT = function() {
+    let payload = { id:this._id}
+    return jwt.sign(payload, ACCESS_TOKEN, {expiresIn: '20m'})
+}
+
+module.exports = mongoose.model.users || mongoose.model('users', userSchema)
