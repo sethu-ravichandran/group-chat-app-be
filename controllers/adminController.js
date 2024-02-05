@@ -21,4 +21,30 @@ const createUser = async(request, response) => {
     }
 }
 
-module.exports = {authenticateAdmin, createUser}
+const updateUser = async(request, response) => {
+    const userId = request.body._id
+    const {firstName, lastName, email, password, role} = request.body
+    try{
+        const userToBeUpdated = await userModel.findById(userId)
+        if (!userToBeUpdated)
+        {
+            return response.status(404).json({status: 'failed', code: 404, data: [], message: "User not found"}) 
+        }
+
+        const newUser = new userModel({firstName, lastName, email, password, role})
+
+        userToBeUpdated.firstName = newUser.firstName || userToBeUpdated.firstName
+        userToBeUpdated.lastName = newUser.lastName || userToBeUpdated.lastName
+        userToBeUpdated.email = newUser.email || userToBeUpdated.email
+        userToBeUpdated.role = newUser.role || userToBeUpdated.role
+        userToBeUpdated.password = newUser.password || userToBeUpdated.password
+
+        const updatedUser = await userToBeUpdated.save()
+        const {password:userPassword, role:userRole , ...user_data } = updatedUser._doc
+        response.status(201).json({ status: 'success', code:201, data: [user_data], message:'Account created, successfully'})
+    } catch (error) {
+        response.status(500).json({status: 'error', code:500, data: [], message: error.message,})
+    }
+}
+
+module.exports = {authenticateAdmin, createUser, updateUser}
